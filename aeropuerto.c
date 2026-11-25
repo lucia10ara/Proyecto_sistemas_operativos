@@ -19,6 +19,10 @@
     #define MAX_MALETAS 10
     #define TAM_MENSAJE 128
 
+    //Señal que carga envia a facturacion cuando una maleta esta embarcada
+    //(usamos SIGUSR1 porque es una señal libre sin funcion fija)
+    #define SENAL_MALETA SIGUSR1 
+
     /*Estructura compartida en los objetos compartidos de memoria*/
 
     struct shmbuf {
@@ -66,6 +70,11 @@
         sleep(tiempo_aleatorio(1, 3));
         printf("[Hilo Carga] Maleta %s embarcada. Notificando a facturación...\n", (char *)arg);
 
+    }
+
+    //Creamos una funcion para poder pasarle la direccion de codigo a la que saltar
+    void avisar_pasajero(int senal) {
+        printf("[Proceso Facturación] Aviso al pasajero: maleta %d cargada en el vuelo %s\n", shmp->maleta_embarcada, shmp->vuelo);
     }
 
     int main(int argc, char* argv[]) {
@@ -120,6 +129,8 @@
             int num_maleta = 0;
 
             char mensaje[TAM_MENSAJE];
+
+            signal(SENAL_MALETA, avisar_pasajero); //cuando "Carga" avise de que la maleta esta embarcada, avisamos al pasajero
 
             while (1) {
 
