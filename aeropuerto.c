@@ -132,14 +132,20 @@
 
             signal(SENAL_MALETA, avisar_pasajero); //cuando "Carga" avise de que la maleta esta embarcada, avisamos al pasajero
 
+            char *vuelos[] = {"VUELO1", "VUELO2", "VUELO3"}; //simulamos distintos vuelos
+
             while (1) {
 
                 sleep(tiempo_aleatorio(3, 7));
                 printf("[Proceso Facturación] Facturada maleta nº %d. Enviando a clasificación...\n", num_maleta);
                 
-                sprintf(mensaje, "Maleta %d", num_maleta); //defino lo que va dentro del mensaje --> Maleta (n)
-	            int resultado = mq_send(cola, mensaje, strlen(mensaje) + 1, 0);
-
+                sprintf(mensaje, "Maleta %d -- %s", num_maleta, vuelos[num_maleta % 3]); //defino lo que va dentro del mensaje --> Maleta (n)
+	            
+                int resultado = mq_send(cola, mensaje, strlen(mensaje) + 1, 0);
+                if (resultado == -1) {
+	 	            perror("[Facturación] Error al enviar el mensaje");
+	                exit(1);
+    		    }
 
                 num_maleta++;
 
